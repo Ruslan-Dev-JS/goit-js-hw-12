@@ -19,10 +19,11 @@ let currentQuery = "";
 let page = 1;
 const PER_PAGE = 15;
 
+// ✅ КНОПКА ФІЗИЧНО ПРИБРАНА З DOM НА СТАРТІ
 hideLoadMoreButton();
 
 form.addEventListener("submit", onSearch);
-loadMoreBtn?.addEventListener("click", onLoadMore);
+loadMoreBtn.addEventListener("click", onLoadMore);
 
 async function onSearch(event) {
   event.preventDefault();
@@ -40,6 +41,7 @@ async function onSearch(event) {
 
   currentQuery = query;
   page = 1;
+
   clearGallery();
   hideLoadMoreButton();
   showLoader();
@@ -61,6 +63,7 @@ async function onSearch(event) {
 
     const totalHits = data.totalHits || 0;
 
+    // ✅ ПОКАЗ КНОПКИ ТІЛЬКИ ЯКЩО Є ЩЕ СТОРІНКИ
     if (totalHits > PER_PAGE) {
       showLoadMoreButton();
     } else {
@@ -105,6 +108,7 @@ async function onLoadMore() {
 
     createGallery(data.hits);
 
+    // ✅ ПЛАВНИЙ СКРОЛ
     const firstCard = document.querySelector(".gallery__item");
     if (firstCard) {
       const { height } = firstCard.getBoundingClientRect();
@@ -117,6 +121,7 @@ async function onLoadMore() {
     const totalHits = data.totalHits || 0;
     const totalLoaded = page * PER_PAGE;
 
+    // ✅ КІНЕЦЬ КОЛЕКЦІЇ
     if (totalLoaded >= totalHits) {
       hideLoadMoreButton();
       iziToast.info({
