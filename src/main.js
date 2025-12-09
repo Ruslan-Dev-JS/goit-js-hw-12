@@ -19,6 +19,8 @@ let currentQuery = "";
 let page = 1;
 const PER_PAGE = 15;
 
+hideLoadMoreButton();
+
 form.addEventListener("submit", onSearch);
 loadMoreBtn?.addEventListener("click", onLoadMore);
 
@@ -36,12 +38,10 @@ async function onSearch(event) {
     return;
   }
 
-  // Нова пошукова сесія
   currentQuery = query;
   page = 1;
   clearGallery();
   hideLoadMoreButton();
-
   showLoader();
 
   try {
@@ -50,7 +50,8 @@ async function onSearch(event) {
     if (!data || !Array.isArray(data.hits) || data.hits.length === 0) {
       iziToast.info({
         title: "No results",
-        message: "Sorry, there are no images matching your search query. Please try again!",
+        message:
+          "Sorry, there are no images matching your search query. Please try again!",
         timeout: 4000,
       });
       return;
@@ -58,16 +59,12 @@ async function onSearch(event) {
 
     createGallery(data.hits);
 
-    // Відображення Load more кнопки якщо є ще сторінки
     const totalHits = data.totalHits || 0;
-    if (totalHits > page * PER_PAGE) {
+
+    if (totalHits > PER_PAGE) {
       showLoadMoreButton();
     } else {
       hideLoadMoreButton();
-      iziToast.info({
-        message: "We're sorry, but you've reached the end of search results.",
-        timeout: 4000,
-      });
     }
 
     iziToast.success({
@@ -98,17 +95,16 @@ async function onLoadMore() {
     const data = await getImagesByQuery(currentQuery, page);
 
     if (!data || !Array.isArray(data.hits) || data.hits.length === 0) {
+      hideLoadMoreButton();
       iziToast.info({
         message: "We're sorry, but you've reached the end of search results.",
         timeout: 4000,
       });
-      hideLoadMoreButton();
       return;
     }
 
     createGallery(data.hits);
 
-    // Після додавання — прокручуємо на 2 висоти карточки
     const firstCard = document.querySelector(".gallery__item");
     if (firstCard) {
       const { height } = firstCard.getBoundingClientRect();
@@ -120,6 +116,7 @@ async function onLoadMore() {
 
     const totalHits = data.totalHits || 0;
     const totalLoaded = page * PER_PAGE;
+
     if (totalLoaded >= totalHits) {
       hideLoadMoreButton();
       iziToast.info({
